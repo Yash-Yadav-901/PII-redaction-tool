@@ -1,4 +1,6 @@
-Fully Automated PII Redaction Pipeline for Word Documents (.docx)
+### Fully Automated PII Redaction Pipeline for Word Documents (.docx)
+
+
 1. Project Overview & Approach
 The Fully Automated PII Redaction Tool is a robust Python utility designed to scan unstructured and semi-structured Word documents (.docx), detect sensitive Personal Identifiable Information (PII) across 9 distinct categories, and replace them with consistent synthetic placeholders (using the Faker library) while preserving the underlying XML layout, styling, and table integrity.
 
@@ -37,23 +39,21 @@ Follow these command-line instructions to set up your environment and execute th
 Step 1: Open Terminal and Navigate to Project Directory
 Open your command prompt or terminal and ensure you are inside your project folder:
 
-DOS
-cd D:\piiredactiontool\scalerai
+
+cd \piiredactiontool\scalerai
 Step 2: Activate Your Virtual Environment
 Activate your Python virtual environment:
 
-DOS
+
 venv\Scripts\activate
 Step 3: Install Required Dependencies
 Ensure all packages (python-docx, faker, spacy) are installed:
 
-DOS
 pip install -r requirements.txt
 python -m spacy download en_core_web_sm
 Step 4: Run the Redaction Script
 Execute main.py by providing the path to your source Word document and your target output file path wrapped securely in double quotes:
 
-DOS
 python main.py "input_docs\Red Herring Prospectus (2).docx" "output_docs\Redacted_Output.docx"
 Step 5: Verify Output
 Upon successful execution, the terminal will confirm the file creation, and you can open output_docs/Redacted_Output.docx to review your completely redacted, layout-preserved document.
