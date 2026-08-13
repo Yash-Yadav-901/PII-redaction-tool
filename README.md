@@ -12,7 +12,7 @@ Redaction runs in **two passes**: a full document scan first to build a name/org
 
 ---
 
-## Precision — What We Chose NOT to Redact
+## What We Chose NOT to Redact (Precision):
 
 Some numeric identifiers that look sensitive were **deliberately excluded**:
 
@@ -24,7 +24,7 @@ This is a **precision-first design choice**: it's better to leave a borderline i
 
 ---
 
-## Recall — What We Catch
+## What i able to catch (Recalls):-
 
 | PII Type | Detection Method | Coverage |
 |---|---|---|
@@ -61,7 +61,7 @@ This is a **precision-first design choice**: it's better to leave a borderline i
 - **Exclusion whitelist:** Prevents over-redaction of regulatory terms like *SEBI*, *RBI*, *Board of Directors* — but a person whose name overlaps with a whitelisted word may be missed.
 - **Broad phone regex:** Catches most formats but risks colliding with financial numbers.
 - **Two-pass design:** Ensures all names are discovered before redaction begins, but reads the full document twice.
-- **No image/scanned content support:** `python-docx` only reads XML text nodes — scanned pages are silently skipped.
+- **No image/scanned content support:** `python-docx` only reads XML text nodes — scanned pages are silently skipped and the given docx contain two images one is pan card and other is adhhar card of some persons so it is not able to detect those and hence not able to redact them.
 
 ---
 
