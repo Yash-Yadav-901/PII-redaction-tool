@@ -14,13 +14,11 @@ Redaction runs in two passes: first a full document scan to build a name/org inv
 
 ## Tradeoffs
 
-| Decision | Tradeoff |
-|---|---|
-| spaCy `en_core_web_sm` (small model) | Fast and lightweight, but less accurate than larger models on ambiguous or domain-specific names |
-| Exclusion whitelist for legal/financial terms | Prevents over-redaction of terms like *SEBI*, *RBI*, *Board of Directors* — but a genuinely named person who shares a whitelisted word may be missed |
-| Regex for phone numbers | Broad pattern catches most formats but can produce false positives on numeric sequences like share quantities or financial figures |
-| Two-pass design | Ensures all names are discovered before redaction starts, but doubles the document read time |
-| Image/scanned content not supported | `python-docx` only reads XML text nodes — embedded images or scanned pages are silently skipped |
+- **spaCy small model (`en_core_web_sm`):** Fast and lightweight, but less accurate than larger models on ambiguous or domain-specific names.
+- **Exclusion whitelist:** Prevents over-redaction of regulatory terms like *SEBI*, *RBI*, *Board of Directors* — but a person whose name overlaps with a whitelisted word may be missed.
+- **Broad phone regex:** Catches most number formats but can produce false positives on numeric sequences like share quantities or financial figures.
+- **Two-pass design:** Ensures all names are discovered before redaction begins, but requires reading the entire document twice.
+- **No image/scanned content support:** `python-docx` only reads XML text nodes — embedded images or scanned pages are silently skipped.
 
 ---
 
