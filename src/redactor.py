@@ -25,7 +25,7 @@ class PIIDetectionAndRedaction:
             "date", "notice", "time", "period", "year", "fiscal", "total", "amount",
             "price", "bank", "registrar", "manager", "lead", "bidders", "investors",
             "application", "form", "bidding", "bids", "allotment", "equity", "capital",
-            "maharashtra", "pune", "mumbai", "delhi", "bengaluru", "chennai", "regulator"
+            "regulator"
         }
         
 
@@ -47,7 +47,9 @@ class PIIDetectionAndRedaction:
             #Aadhaar Numbers
             {'type': 'AADHAAR', 'pattern': re.compile(r'\b\d{4}\s?\d{4}\s?\d{4}\b')},
             #Physical or Mailing Addresses
-            {'type': 'ADDRESS', 'pattern': re.compile(r'\b(?:Gat|Plot|Tower|Building|Flat|Door|Survey)\s+No\.?\s*[\w/\s,-]+', re.IGNORECASE)}
+            {'type': 'ADDRESS', 'pattern': re.compile(r'\b(?:Gat|Plot|Tower|Building|Flat|Door|Survey)\s+No\.?\s*[\w/\s,-]+', re.IGNORECASE)},
+            #Concatenated / CamelCase Names (e.g., KushalSubbayyaHegde)
+            {'type': 'PERSON', 'pattern': re.compile(r'\b[A-Z][a-z]+(?:[A-Z][a-z]+){2,}\b')}
         ]
 
 
@@ -79,7 +81,7 @@ class PIIDetectionAndRedaction:
         self.pii_mapping[key] = replacement
         return replacement
 
-#this function scans the text for PII and adds discovered names and organizations to the respective sets
+    #this function scans the text for PII and adds discovered names and organizations to the respective sets
     def scan_and_discover(self, text):
         
         if not text or len(text.strip()) < 4:
@@ -134,6 +136,15 @@ class PIIDetectionAndRedaction:
                 
         return redacted
 
+    def safe_replace_paragraph(self, paragraph, new_text):
+        """Safely updates paragraph text while keeping run structure intact to prevent text merging."""
+        if not paragraph.runs:
+            paragraph.text = new_text
+            return
+        paragraph.runs[0].text = new_text
+        for r in paragraph.runs[1:]:
+            r.text = ""
+
     def process_file(self, input_path, output_path):
         if not os.path.exists(input_path):
             print(f"Error: File not found at {input_path}")
@@ -152,7 +163,7 @@ class PIIDetectionAndRedaction:
                 for cell in row.cells:
                     self.scan_and_discover(cell.text)
                     
-        print(f"Automatically identified {len(self.discovered_names)} names and {len(self.discovered_orgs)} companies.")
+        # print(f"Automatically identified {len(self.discovered_names)} names and {len(self.discovered_orgs)} companies.")
         self.sorted_names = sorted(list(self.discovered_names), key=len, reverse=True)
         self.sorted_orgs = sorted(list(self.discovered_orgs), key=len, reverse=True)
         
@@ -164,12 +175,7 @@ class PIIDetectionAndRedaction:
             if original.strip():
                 redacted = self.redact_text(original)
                 if original != redacted:
-                    if p.runs:
-                        p.runs[0].text = redacted
-                        for r in p.runs[1:]:
-                            r.text = ""
-                    else:
-                        p.text = redacted
+                    self.safe_replace_paragraph(p, redacted)
                         
         
         for t in doc.tables: #using this for loop to iterate through all the tables in the document and then iterate through each row and cell to access the paragraphs within each cell. This allows for redaction of PII in table cells as well.
@@ -180,12 +186,7 @@ class PIIDetectionAndRedaction:
                         if original.strip():
                             redacted = self.redact_text(original)
                             if original != redacted:
-                                if p.runs:
-                                    p.runs[0].text = redacted
-                                    for r in p.runs[1:]:
-                                        r.text = ""
-                                else:
-                                    p.text = redacted
+                                self.safe_replace_paragraph(p, redacted)
 
         doc.save(output_path)
         print(f"\nThe new document fully automated and clean file saved to {output_path}\n")
